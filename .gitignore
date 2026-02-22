@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pt
+*.h5
+*.ckpt
+*.csv
+*.pkl
+*.joblib
+*.npy
+.DS_Store

@@ -1,0 +1,23 @@
+protein embeddings ? than traditional features. 
+Option 1: ESM-2 (Meta AI) ⭐⭐⭐ BEST CHOICEWhat it is:
+
+State-of-the-art protein language model
+Like BERT/GPT for proteins
+Trained on 250M+ protein sequences
+Understands protein structure and function
+Embedding size: 1280 dimensions (perfect for your dataset)Pros:
+
+✅ Best performance
+✅ Easy to use (Hugging Face)
+✅ Pre-trained, just extract embeddings
+✅ Captures mechanosensitive channel features
+Cons:
+
+⚠️ Requires GPU (but can use CPU slower)
+⚠️ Embedding extraction takes time (one-time cost)
+
+
+-------- 
+Do unit tests 
+Deploy as well 
+The amount of positive data points : 1054
