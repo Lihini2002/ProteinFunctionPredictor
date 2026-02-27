@@ -53,7 +53,7 @@ def train_model(model, train_loader, val_loader,
     criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='max', factor=0.5, patience=5, verbose=True
+        optimizer, mode='max', factor=0.5, patience=5
     )
     
     history = {
@@ -98,7 +98,9 @@ def train_model(model, train_loader, val_loader,
         train_acc = accuracy_score(train_labels, train_preds)
         
         # Validation
+        model = model.to(device)
         model.eval()
+        
         val_loss = 0
         val_preds = []
         val_probs = []
@@ -269,9 +271,11 @@ def main():
     print(f"   Test:  {len(test_dataset)}")
     
     # Create dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True , drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+
     
     # Initialize model
     print("\n3. Initializing model...")

@@ -1,12 +1,6 @@
 
 # base_url = "www.ebi.ac.uk/proteins/api" 
-import re
-import requests
-from Bio import SeqIO
-from io import StringIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-import pandas as pd
+
 # class negativeDatasetBuilder: 
 #     def __init__(self):
 #         pass
@@ -37,32 +31,6 @@ import pandas as pd
 #             file.write(data_to_write)
 
  
-
-positives = set()
-descriptions = [] 
-with open("data.gaf") as f:
-            for line in f:
-                if line.startswith("!"):
-                    continue
-
-                cols = line.strip().split("\t")
-                protein_id = cols[0]
-                protein_descriptions = cols[1]
-                go_term = cols[3]
-
-                pattern = r"^UniProtKB"
-                if go_term == "GO:0008381": 
-                    if re.match(pattern,protein_id):
-                        db, accession = protein_id.split(":", 1)
-                        positives.add(accession)   
-                        descriptions.append(protein_descriptions) 
-
-# convert to pandas series
-desc_series = pd.Series(descriptions)
-
-# unique descriptions
-unique_desc = desc_series.unique()
-pd.Series(unique_desc).to_csv("unique_descriptions.csv", index=False)
 
                
     # Uncomment this part to rewrite the file    
@@ -237,13 +205,43 @@ pd.Series(unique_desc).to_csv("unique_descriptions.csv", index=False)
 # print("URL:", r.url)
 # print("RESPONSE:", r.text[:500])
 
-
-
+import re
 import requests
 import pandas as pd
 from io import StringIO
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
-# Query
+# -----------------------------------------------
+# 1. Extract positives from GAF file
+# -----------------------------------------------
+positives = set()
+descriptions = []
+
+with open("data.gaf") as f:
+    for line in f:
+        if line.startswith("!"):
+            continue
+        cols = line.strip().split("\t")
+        protein_id = cols[0]
+        protein_descriptions = cols[1]
+        go_term = cols[3]
+
+        if go_term == "GO:0008381":
+            if re.match(r"^UniProtKB", protein_id):
+                db, accession = protein_id.split(":", 1)
+                positives.add(accession)
+                descriptions.append(protein_descriptions)
+
+desc_series = pd.Series(descriptions)
+unique_desc = desc_series.unique()
+pd.Series(unique_desc).to_csv("unique_descriptions.csv", index=False)
+print(f"Positives found: {len(positives)}")
+
+# -----------------------------------------------
+# 2. Fetch negatives from UniProt with pagination
+# -----------------------------------------------
 query = (
     'reviewed:true '
     'AND keyword:KW-0812 '
@@ -257,8 +255,10 @@ params = {
     "query": query,
     "format": "tsv",
     "fields": "accession,protein_name,sequence",
-    "size": 200  # max per request
+    "size": 500
 }
+
+
 
 all_df = []
 
@@ -266,46 +266,54 @@ while url:
     r = requests.get(url, params=params)
     if r.status_code != 200:
         print(r.text)
-        raise Exception("UniProt error", r.status_code)
-    
+        raise Exception(f"UniProt error: {r.status_code}")
+
+    print("Total results available:", r.headers.get("X-Total-Results", "unknown"))
     df = pd.read_csv(StringIO(r.text), sep="\t")
     df.columns = ["Entry", "Protein names", "Sequence"]
     all_df.append(df)
 
     total_rows = sum(len(d) for d in all_df)
-    if total_rows >= 800:
+    print(f"  Fetched {total_rows} so far...")
+
+    if total_rows >= 3000:
         break
 
-    # check if there is a next page
-    next_link = None
-if "Link" in r.headers:
-    links = r.headers["Link"].split(",")
-    for l in links:
-        l = l.strip()
-        if 'rel="next"' in l:
-            start = l.find("<")
-            end = l.find(">")
-            if start != -1 and end != -1:
-                next_link = l[start+1:end]
+    print("Link header:", r.headers.get("Link", "NO LINK HEADER FOUND"))
+
+
+    # ✅ Update url from Link header, reset params
+    url = None
+    params = None  # next URL already has params embedded
+    if "Link" in r.headers:
+        link_header = r.headers.get("Link", "")
+        match = re.search(r'<(https://[^>]+)>;\s*rel="next"', link_header)
+        if match:
+            url = match.group(1)
+            print(f"  Next page found")
+        else:
+            print("  No more pages")
             break
 
-
-# combine all batches
+# -----------------------------------------------
+# 3. Filter out positives
+# -----------------------------------------------
 final_df = pd.concat(all_df, ignore_index=True)
-print("Total proteins fetched:", len(final_df))
+print(f"Total proteins fetched: {len(final_df)}")
 
-positives = set(line.strip() for line in open("positiveUniprot.txt"))
-final_df = final_df[~final_df["Entry"].isin(positives)]
+positive_ids = set(line.strip() for line in open("positiveUniprot.txt"))
+final_df = final_df[~final_df["Entry"].isin(positive_ids)]
+print(f"After removing positives: {len(final_df)}")
 
-# -------------------------------
-# 5️⃣ Sample 700 (or max available)
-# -------------------------------
-n_samples = min(800, len(final_df))
+# -----------------------------------------------
+# 4. Sample
+# -----------------------------------------------
+n_samples = min(3000, len(final_df))
 sample_df = final_df.sample(n=n_samples, random_state=42)
 
-# -------------------------------
-# 6️⃣ Save FASTA + TXT
-# -------------------------------
+# -----------------------------------------------
+# 5. Save FASTA + TXT
+# -----------------------------------------------
 with open("hard_negatives.fasta", "w") as fasta_f, open("hard_negatives.txt", "w") as txt_f:
     for _, row in sample_df.iterrows():
         acc = row["Entry"]
@@ -315,7 +323,7 @@ with open("hard_negatives.fasta", "w") as fasta_f, open("hard_negatives.txt", "w
         fasta_f.write(header + "\n")
         for i in range(0, len(seq), 60):
             fasta_f.write(seq[i:i+60] + "\n")
-        
+
         txt_f.write(acc + "\n")
 
-print(f"Saved {n_samples} hard negatives")
+print(f"Saved {n_samples} hard negatives to hard_negatives.fasta")

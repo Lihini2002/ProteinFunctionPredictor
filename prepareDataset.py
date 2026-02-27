@@ -85,6 +85,22 @@ def prepare_dataset():
     labels = [s['label'] for s in all_data]
     
     print(f"\n4. Total dataset: {len(all_data)} proteins")
+
+    def save_to_fasta(sequences_list, output_file):
+        with open(output_file, 'w') as f:
+            for s in sequences_list:
+            # Write header line with id and label
+                f.write(f">{s['id']} label={s['label']}\n")
+            # Write sequence in 60-character chunks (standard FASTA format)
+                seq = s['sequence']
+                for i in range(0, len(seq), 60):
+                    f.write(seq[i:i+60] + '\n')
+        print(f"   ✓ Saved {len(sequences_list)} sequences to {output_file}")
+
+        # Save combined dataset
+    print("\n5. Saving combined dataset...")
+    save_to_fasta(all_data, 'combined_dataset.fasta')
+
     print(f"   Positive: {sum(labels)} ({sum(labels)/len(labels)*100:.1f}%)")
     print(f"   Negative: {len(labels)-sum(labels)} ({(len(labels)-sum(labels))/len(labels)*100:.1f}%)")
     
