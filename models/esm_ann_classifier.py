@@ -19,8 +19,12 @@ class ESM2_ANN_Classifier(nn.Module):
     def __init__(self, 
                  esm_model_name="facebook/esm2_t30_150M_UR50D",
                  freeze_esm=True,
+                #  even if we reduce hidden dims to a really really low number it is still overfit 
+                # embeddings are really powerful. 
                  hidden_dims=[512, 256, 128],
-                 dropout=0.3):
+                #  initially the dropout was set to be 0.3 
+                # stronger dropout can 
+                 dropout=0.6):
         """
         Args:
             esm_model_name: ESM-2 model to use

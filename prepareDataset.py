@@ -61,7 +61,7 @@ def prepare_dataset():
     
     # Load negative sequences
     print("\n2. Loading negative sequences...")
-    negatives = load_sequences_from_fasta('hard_negatives.fasta', label=0)
+    negatives = load_sequences_from_fasta('random_negatives.fasta', label=0)
     print(f"   ✓ Loaded {len(negatives)} negative sequences")
     
     # Filter by length

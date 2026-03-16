@@ -3,6 +3,11 @@
 """
 Train ANN classifier on pre-computed ESM-2 embeddings
 This runs fast on CPU!
+This script is only doing:
+dataset loading
+training loop
+evaluation
+saving weights
 """
 
 import pickle
@@ -51,7 +56,7 @@ def train_model(model, train_loader, val_loader,
     model = model.to(device)
     
     criterion = nn.BCELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='max', factor=0.5, patience=5
     )
@@ -81,7 +86,11 @@ def train_model(model, train_loader, val_loader,
         train_labels = []
         
         for batch in train_loader:
-            embeddings = batch['embedding'].to(device)
+            # embeddings = batch['embedding'] + torch.randn_like(batch['embedding']) * 0.01.to(device)
+            embeddings = batch['embedding'].to(device)  # move embeddings to device
+            # create some noise
+            noise = torch.randn_like(embeddings) * 0.01 
+            embeddings = embeddings + noise  # add noise
             labels = batch['label'].to(device)
             
             optimizer.zero_grad()
@@ -270,6 +279,14 @@ def main():
     print(f"   Val:   {len(val_dataset)}")
     print(f"   Test:  {len(test_dataset)}")
     
+    # overlaps of the training and validation and the tests 
+    train_ids = set(embedding_data['train']['ids'])
+    val_ids   = set(embedding_data['val']['ids'])
+    test_ids  = set(embedding_data['test']['ids'])
+
+    print("Train–Val overlap:", len(train_ids & val_ids))
+    print("Train–Test overlap:", len(train_ids & test_ids))
+    print("Val–Test overlap:", len(val_ids & test_ids))
     # Create dataloaders
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True , drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
