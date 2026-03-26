@@ -1,3 +1,10 @@
+"""
+This file prepares the positive dataset obtaining values from the gaf file and 
+then prepares the negative dataset 
+"""
+
+
+
 import re
 import requests
 import pandas as pd
@@ -5,6 +12,7 @@ from io import StringIO
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+from dotenv import load_dotenv
 
 # -----------------------------------------------
 # 1. Extract positives from GAF file
@@ -12,7 +20,7 @@ from Bio.SeqRecord import SeqRecord
 positives = set()
 descriptions = []
 
-with open("data.gaf") as f:
+with open("transporters.gaf") as f:
     for line in f:
         if line.startswith("!"):
             continue
@@ -21,7 +29,8 @@ with open("data.gaf") as f:
         protein_descriptions = cols[1]
         go_term = cols[3]
 
-        if go_term == "GO:0008381":
+
+        if go_term == GO_TERM
             if re.match(r"^UniProtKB", protein_id):
                 db, accession = protein_id.split(":", 1)
                 positives.add(accession)
@@ -29,7 +38,7 @@ with open("data.gaf") as f:
 
 desc_series = pd.Series(descriptions)
 unique_desc = desc_series.unique()
-pd.Series(unique_desc).to_csv("unique_descriptions.csv", index=False)
+# pd.Series(unique_desc).to_csv("unique_descriptions.csv", index=False)
 print(f"Positives found: {len(positives)}")
 
 # -----------------------------------------------
