@@ -3,7 +3,6 @@ __pycache__/
 .ipynb_checkpoints/
 *.h5
 *.ckpt
-*.csv
 *.joblib
 *.npy
 .DS_Store
