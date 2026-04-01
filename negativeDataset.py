@@ -42,6 +42,8 @@ query = (
     'AND NOT go:0097495 '         # not mechanosensitive ion channel (child term)
     'AND NOT protein_name:mechanosensitive '
     'AND NOT protein_name:piezo '
+    'AND NOT protein_name:TMC '
+    'AND NOT protein_name:SH3 '
 )
 
 url = "https://rest.uniprot.org/uniprotkb/search"

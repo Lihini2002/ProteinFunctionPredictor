@@ -105,61 +105,61 @@ def prepare_dataset():
     print(f"   Negative: {len(labels)-sum(labels)} ({(len(labels)-sum(labels))/len(labels)*100:.1f}%)")
     
     # Split into train/val/test
-    print("\n5. Splitting dataset...")
+    # print("\n5. Splitting dataset...")
     
-    # First split: train+val vs test
-    train_val_ids, test_ids, train_val_seqs, test_seqs, train_val_labels, test_labels = train_test_split(
-        ids, sequences, labels,
-        test_size=0.15,
-        random_state=42,
-        stratify=labels
-    )
+    # # First split: train+val vs test
+    # train_val_ids, test_ids, train_val_seqs, test_seqs, train_val_labels, test_labels = train_test_split(
+    #     ids, sequences, labels,
+    #     test_size=0.15,
+    #     random_state=42,
+    #     stratify=labels
+    # )
     
-    # Second split: train vs val
-    train_ids, val_ids, train_seqs, val_seqs, train_labels, val_labels = train_test_split(
-        train_val_ids, train_val_seqs, train_val_labels,
-        test_size=0.176,  # 0.15 of original = 0.15/0.85 ≈ 0.176
-        random_state=42,
-        stratify=train_val_labels
-    )
+    # # Second split: train vs val
+    # train_ids, val_ids, train_seqs, val_seqs, train_labels, val_labels = train_test_split(
+    #     train_val_ids, train_val_seqs, train_val_labels,
+    #     test_size=0.176,  # 0.15 of original = 0.15/0.85 ≈ 0.176
+    #     random_state=42,
+    #     stratify=train_val_labels
+    # )
     
-    print(f"   Train: {len(train_ids)} ({sum(train_labels)} pos, {len(train_labels)-sum(train_labels)} neg)")
-    print(f"   Val:   {len(val_ids)} ({sum(val_labels)} pos, {len(val_labels)-sum(val_labels)} neg)")
-    print(f"   Test:  {len(test_ids)} ({sum(test_labels)} pos, {len(test_labels)-sum(test_labels)} neg)")
+    # print(f"   Train: {len(train_ids)} ({sum(train_labels)} pos, {len(train_labels)-sum(train_labels)} neg)")
+    # print(f"   Val:   {len(val_ids)} ({sum(val_labels)} pos, {len(val_labels)-sum(val_labels)} neg)")
+    # print(f"   Test:  {len(test_ids)} ({sum(test_labels)} pos, {len(test_labels)-sum(test_labels)} neg)")
     
-    # Save datasets
-    print("\n6. Saving datasets...")
+    # # Save datasets
+    # print("\n6. Saving datasets...")
     
-    train_data = {
-        'ids': train_ids,
-        'sequences': train_seqs,
-        'labels': train_labels
-    }
+    # train_data = {
+    #     'ids': train_ids,
+    #     'sequences': train_seqs,
+    #     'labels': train_labels
+    # }
     
-    val_data = {
-        'ids': val_ids,
-        'sequences': val_seqs,
-        'labels': val_labels
-    }
+    # val_data = {
+    #     'ids': val_ids,
+    #     'sequences': val_seqs,
+    #     'labels': val_labels
+    # }
     
-    test_data = {
-        'ids': test_ids,
-        'sequences': test_seqs,
-        'labels': test_labels
-    }
+    # test_data = {
+    #     'ids': test_ids,
+    #     'sequences': test_seqs,
+    #     'labels': test_labels
+    # }
     
-    with open('data/train_data.pkl', 'wb') as f:
-        pickle.dump(train_data, f)
+    # with open('data/train_data.pkl', 'wb') as f:
+    #     pickle.dump(train_data, f)
     
-    with open('data/val_data.pkl', 'wb') as f:
-        pickle.dump(val_data, f)
+    # with open('data/val_data.pkl', 'wb') as f:
+    #     pickle.dump(val_data, f)
     
-    with open('data/test_data.pkl', 'wb') as f:
-        pickle.dump(test_data, f)
+    # with open('data/test_data.pkl', 'wb') as f:
+    #     pickle.dump(test_data, f)
     
-    print("   ✓ Saved train_data.pkl")
-    print("   ✓ Saved val_data.pkl")
-    print("   ✓ Saved test_data.pkl")
+    # print("   ✓ Saved train_data.pkl")
+    # print("   ✓ Saved val_data.pkl")
+    # print("   ✓ Saved test_data.pkl")
     
     # Create summary
     summary = {
