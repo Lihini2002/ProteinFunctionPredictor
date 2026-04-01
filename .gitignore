@@ -5,7 +5,6 @@ __pycache__/
 *.h5
 *.ckpt
 *.csv
-*.pkl
 *.joblib
 *.npy
 .DS_Store
