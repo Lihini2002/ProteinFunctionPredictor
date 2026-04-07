@@ -12,7 +12,7 @@ from Bio.SeqRecord import SeqRecord
 positives = set()
 descriptions = []
 
-with open("data.gaf") as f:
+with open("datasets/raw/data.gaf") as f:
     for line in f:
         if line.startswith("!"):
             continue
