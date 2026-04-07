@@ -282,8 +282,8 @@ def load_model_artefacts():
 
         model = DescriptorANNClassifier(
             input_dim   = meta["input_dim"],
-            hidden_dims = (64, 32),
-            dropout     = 0.3,
+            hidden_dims = (48, 24),
+            dropout     = 0.35,
         )
         model.load_state_dict(
             torch.load(
