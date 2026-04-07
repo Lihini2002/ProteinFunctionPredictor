@@ -275,18 +275,22 @@ def read_fasta_with_labels(fasta_file):
     return sequences
 
 import joblib
-
+import csv
 def fasta_to_feature_csv(fasta_file, output_csv):
     sequences = read_fasta_with_labels(fasta_file)  # Your FASTA reader
     # Get feature names from a dummy sequence
     feature_names = list(extract_features('ACDEFGHIKLMNPQRSTVWY').keys())
-    joblib.dump(feature_names, "features.pkl")
-    import csv
+
     with open(output_csv, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=feature_names + ['Label'])
+        writer = csv.DictWriter(
+            f,
+            fieldnames=['name'] + feature_names + ['Label']
+        )
         writer.writeheader()
+
         for name, seq, label in sequences:
             features = extract_features(seq)
+            features['name'] = name
             features['Label'] = label
             writer.writerow(features)
     

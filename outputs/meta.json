@@ -1,5 +1,4 @@
 {
-  "threshold": 0.5,
   "feature_names": [
     "AAC_A",
     "AAC_C",
@@ -433,5 +432,6 @@
     "low_complexity_frac",
     "pI"
   ],
-  "input_dim": 431
+  "input_dim": 431,
+  "threshold": 0.5
 }
